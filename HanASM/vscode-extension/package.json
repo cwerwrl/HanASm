@@ -1,0 +1,166 @@
+{
+  "name": "han-asm",
+  "displayName": "中文汇编器 HanASM",
+  "description": "为中文汇编语言（HanASM）提供语法高亮、代码片段与一键编译（调用 asm.exe）。",
+  "version": "0.1.0",
+  "publisher": "hanasm-local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Other"
+  ],
+  "keywords": [
+    "中文汇编",
+    "HanASM",
+    "汇编",
+    "assembly"
+  ],
+  "activationEvents": [
+    "onLanguage:han-asm",
+    "onCommand:han-asm.build"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "han-asm",
+        "aliases": [
+          "HanASM",
+          "中文汇编",
+          "han-asm"
+        ],
+        "extensions": [
+          ".asm",
+          ".hasm",
+          ".hanasm"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "han-asm",
+        "scopeName": "source.han-asm",
+        "path": "./syntaxes/han-asm.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "han-asm",
+        "path": "./snippets/han-asm.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "han-asm.build",
+        "title": "编译当前文件",
+        "category": "HanASM",
+        "icon": "$(tools)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "han-asm.build",
+        "key": "ctrl+alt+b",
+        "mac": "cmd+alt+b"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "han-asm.build",
+          "when": "resourceExtname == '.asm' || resourceExtname == '.hasm' || resourceExtname == '.hanasm'",
+          "group": "navigation@1"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "han-asm.build",
+          "when": "resourceExtname == '.asm' || resourceExtname == '.hasm' || resourceExtname == '.hanasm'",
+          "group": "navigation@1"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "han-asm.build",
+          "when": "resourceExtname == '.asm' || resourceExtname == '.hasm' || resourceExtname == '.hanasm'",
+          "group": "navigation@1"
+        }
+      ]
+    },
+    "configurationDefaults": {
+      "[han-asm]": {
+        "editor.unicodeHighlight.ambiguousCharacters": false,
+        "editor.unicodeHighlight.invisibleCharacters": false,
+        "editor.unicodeHighlight.nonBasicASCII": false
+      }
+    },
+    "configuration": {
+      "title": "HanASM",
+      "properties": {
+        "hanAsm.executablePath": {
+          "type": "string",
+          "default": "",
+          "description": "asm.exe 的路径。留空时依次在源文件目录、工作区根目录、工作区 bin 目录和 PATH 中查找。支持 ${workspaceFolder}、${fileDirname} 变量。"
+        },
+        "hanAsm.arguments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "${file}"
+          ],
+          "description": "传给 asm.exe 的参数模板。支持 ${file}、${fileDirname}、${fileBasename}、${fileBasenameNoExtension}、${workspaceFolder}。"
+        },
+        "hanAsm.output": {
+          "type": "string",
+          "enum": [
+            "outputChannel",
+            "terminal"
+          ],
+          "enumDescriptions": [
+            "在“输出”面板的 HanASM 频道中显示编译结果（可获取退出码）",
+            "直接在 VS Code 集成终端中运行编译器"
+          ],
+          "default": "outputChannel",
+          "description": "编译结果的输出位置。"
+        },
+        "hanAsm.encoding": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "utf-8",
+            "gbk"
+          ],
+          "enumDescriptions": [
+            "先按 UTF-8 解码，失败后退回 GBK",
+            "始终按 UTF-8 解码",
+            "始终按 GBK 解码（适合中文 Windows 控制台程序）"
+          ],
+          "default": "auto",
+          "description": "解码 asm.exe 输出时使用的编码。出现乱码时可改为 gbk 或 utf-8。"
+        },
+        "hanAsm.saveBeforeBuild": {
+          "type": "boolean",
+          "default": true,
+          "description": "编译前自动保存当前文件。"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.0",
+    "@types/vscode": "1.75.0",
+    "typescript": "^5.4.0"
+  }
+}

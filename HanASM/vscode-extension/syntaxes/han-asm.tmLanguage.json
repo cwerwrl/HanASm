@@ -1,0 +1,180 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Han Assembly",
+  "scopeName": "source.han-asm",
+  "comment": "中文汇编器 HanASM 的 TextMate 语法。边界断言只排除 ASCII 标识符字符 [A-Za-z0-9_]，允许指令与寄存器直接连写（如“装甲，10”）；标签与标点均支持中英（半角/全角）双通。注意：全角标点被黄色方框圈选是 VS Code 的 editor.unicodeHighlight 默认行为，已在 package.json 的 configurationDefaults 中针对 [han-asm] 关闭。",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#label-definition"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#instructions"
+    },
+    {
+      "include": "#registers"
+    },
+    {
+      "include": "#types"
+    },
+    {
+      "include": "#punctuation"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#identifiers"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.semicolon.han-asm",
+          "match": ";.*$"
+        },
+        {
+          "name": "comment.line.double-slash.han-asm",
+          "match": "//.*$"
+        },
+        {
+          "comment": "“注”必须独立成词（后面是空白或行尾），避免把“注意”之类的标签当成注释",
+          "name": "comment.line.keyword.han-asm",
+          "match": "(?<![A-Za-z0-9_])注(?=\\s|$)[^\\n]*"
+        }
+      ]
+    },
+    "label-definition": {
+      "patterns": [
+        {
+          "comment": "标签定义：行首（允许缩进）标识符 + 半角/全角冒号，例如“入口:”“成功：”",
+          "match": "^\\s*([A-Za-z_\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]*)(\\s*)([:：])(?![:：=])",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.han-asm"
+            },
+            "3": {
+              "name": "punctuation.separator.label.han-asm"
+            }
+          }
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.han-asm",
+          "match": "\"((?:[^\"\\\\]|\\\\.)*)\"",
+          "captures": {
+            "1": {
+              "patterns": [
+                {
+                  "name": "constant.character.escape.han-asm",
+                  "match": "\\\\."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "string.quoted.single.han-asm",
+          "match": "'((?:[^'\\\\]|\\\\.)*)'",
+          "captures": {
+            "1": {
+              "patterns": [
+                {
+                  "name": "constant.character.escape.han-asm",
+                  "match": "\\\\."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "comment": "全角双引号字符串（中英标点双通）",
+          "name": "string.quoted.double.fullwidth.han-asm",
+          "match": "“([^”]*)”"
+        },
+        {
+          "comment": "全角单引号字符串（中英标点双通）",
+          "name": "string.quoted.single.fullwidth.han-asm",
+          "match": "‘([^’]*)’"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "comment": "十六进制 / 二进制 / 八进制 / 十进制（含小数）；前后排除 ASCII 标识符与点号，避免把“变量1”拆出数字",
+          "name": "constant.numeric.han-asm",
+          "match": "(?<![A-Za-z0-9_.\\u4e00-\\u9fff])(?:0[xX][0-9A-Fa-f]+|0[bB][01]+|0[oO][0-7]+|\\d+(?:\\.\\d+)?)(?![A-Za-z0-9_])"
+        }
+      ]
+    },
+    "instructions": {
+      "patterns": [
+        {
+          "comment": "指令助记符。长词必须排在短词前（如“跳大于”先于“跳”），否则短词会抢先匹配。后向断言允许紧跟中文，以支持“装甲，10”这类连写",
+          "name": "keyword.control.instruction.han-asm",
+          "match": "(?<![A-Za-z0-9_])(?:系统调用|数据段|代码段|栈段|空操作|跳大于|跳小于|跳不等|跳等于|跳零|跳正|跳负|跳等|压栈|出栈|入栈|循环左移|循环右移|左移|右移|自增|自减|比较|调用|系调|返回|中断|打印|输入|读取|写入|常量|异或|装|加|减|乘|除|模|幂|跳|停|测|存|取|读|写|与|或|非)(?![A-Za-z0-9_])"
+        }
+      ]
+    },
+    "registers": {
+      "patterns": [
+        {
+          "name": "variable.other.register.han-asm",
+          "match": "(?<![A-Za-z0-9_])(?:栈顶|栈底|栈针|帧针|指令针|标志|高位|低位|甲|乙|丙|丁|戊|己|庚|辛|址)(?![A-Za-z0-9_])"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "storage.type.han-asm",
+          "match": "(?<![A-Za-z0-9_])(?:整数|字符|字串|浮点|布尔|字节|双字|四字|指针|数组)(?![A-Za-z0-9_])"
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "comment": "括号类：半角 () [] {} 与全角 （） ｛｝ 【】 〔〕 双通匹配",
+          "name": "punctuation.section.bracket.han-asm",
+          "match": "[(){}\\[\\]（）｛｝【】〔〕]"
+        },
+        {
+          "comment": "分隔符类：半角与全角逗号、冒号、分号、顿号双通。半角分号 ; 不会进入本规则——它在 comments 中已作为行注释优先匹配",
+          "name": "punctuation.separator.han-asm",
+          "match": "[,，:：;；、]"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.han-asm",
+          "match": "\\+\\+|--|<<|>>|<=|>=|==|!=|&&|\\|\\||[-+*/%&|^~!=<>]=?"
+        }
+      ]
+    },
+    "identifiers": {
+      "patterns": [
+        {
+          "comment": "兜底规则：指令/寄存器/类型之外的中英文标识符（标签引用、变量名）。贪婪匹配整词，保证“总装”不会被拆成“装”",
+          "name": "entity.name.tag.han-asm",
+          "match": "[A-Za-z_\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]*"
+        }
+      ]
+    }
+  }
+}
